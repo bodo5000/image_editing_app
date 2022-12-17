@@ -1,17 +1,49 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_editor/models/text_info_model.dart';
 import 'package:image_editor/screens/edit_image_screen.dart';
+import 'package:image_editor/utils/utils.dart';
 import 'package:image_editor/widget/deafult_button.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:screenshot/screenshot.dart';
 
 abstract class EditImageView extends State<EditImageScreen> {
   //it will pass into our text in TextInfo()
   final TextEditingController textEditingController = TextEditingController();
+
   final TextEditingController creatorText = TextEditingController();
+
+  final ScreenshotController screenshotController = ScreenshotController();
 
   //initialize list To add texts
   final List<TextInfo> textInfoList = [];
-
   int currentIndex = 0;
+
+  //save image to Gallery
+  saveImageToGallery(BuildContext context) {
+    if (textInfoList.isNotEmpty) {
+      screenshotController.capture().then((Uint8List? image) {
+        saveImage(image!);
+      }).catchError((error) {
+        print(error);
+      });
+    }
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Image has been Saved')));
+  }
+
+  saveImage(Uint8List bytes) async {
+    final time = DateTime.now()
+        .toIso8601String()
+        .replaceAll('.', '-')
+        .replaceAll(':', '-');
+    final name = 'ScreenShot_$time';
+    await requestPermission(Permission.storage);
+    await ImageGallerySaver.saveImage(bytes, name: name);
+  }
+
   //select the Text of textInfoList.text
   setCurrentIndex(BuildContext context, int index) {
     setState(() {
@@ -34,7 +66,9 @@ abstract class EditImageView extends State<EditImageScreen> {
 //change Text Color of textInfoList.text
   changeTextColor(Color color) {
     setState(() {
-      textInfoList[currentIndex].color = color;
+      if (textInfoList.isNotEmpty) {
+        textInfoList[currentIndex].color = color;
+      }
     });
   }
 
@@ -50,8 +84,9 @@ abstract class EditImageView extends State<EditImageScreen> {
 //decrease fontSize of textInfoList.text
   decreaseFontSize() {
     setState(() {
-      if (textInfoList.isNotEmpty) {}
-      textInfoList[currentIndex].fontSize -= 2;
+      if (textInfoList.isNotEmpty) {
+        textInfoList[currentIndex].fontSize -= 2;
+      }
     });
   }
 

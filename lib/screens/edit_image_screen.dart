@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_editor/widget/edit_image_view.dart';
 import 'package:image_editor/widget/image_text.dart';
+import 'package:screenshot/screenshot.dart';
 
 class EditImageScreen extends StatefulWidget {
   //we will pass imagefile in HomeScreen to this selectedImage to display it on our EditImageScreen
@@ -18,57 +19,61 @@ class _EditImageScreenState extends EditImageView {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar,
-      body: SafeArea(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.3,
-          child: Stack(
-            children: [
-              _selectedImage,
-              for (int i = 0; i < textInfoList.length; i++)
-                Positioned(
-                  left: textInfoList[i].left,
-                  top: textInfoList[i].top,
-                  child: GestureDetector(
-                    onLongPress: () {
-                      setState(() {
-                        currentIndex = i;
-                        removeText(context);
-                      });
-                    },
-                    onTap: () => setCurrentIndex(context, i),
-                    child: Draggable(
-                      feedback: ImageText(
-                        textInfo: textInfoList[i],
-                      ),
-                      child: ImageText(textInfo: textInfoList[i]),
-                      onDragEnd: (drag) {
-                        final renderBox =
-                            context.findRenderObject() as RenderBox;
-                        Offset offset = renderBox.globalToLocal(drag.offset);
-
+      body: Screenshot(
+        controller: screenshotController,
+        child: SafeArea(
+          child: SizedBox(
+            //declear height for using ScreenShot to take only this space
+            height: MediaQuery.of(context).size.height * 0.3,
+            child: Stack(
+              children: [
+                _selectedImage,
+                for (int i = 0; i < textInfoList.length; i++)
+                  Positioned(
+                    left: textInfoList[i].left,
+                    top: textInfoList[i].top,
+                    child: GestureDetector(
+                      onLongPress: () {
                         setState(() {
-                          textInfoList[i].top = offset.dy - 96;
-                          textInfoList[i].left = offset.dx;
+                          currentIndex = i;
+                          removeText(context);
                         });
                       },
+                      onTap: () => setCurrentIndex(context, i),
+                      child: Draggable(
+                        feedback: ImageText(
+                          textInfo: textInfoList[i],
+                        ),
+                        child: ImageText(textInfo: textInfoList[i]),
+                        onDragEnd: (drag) {
+                          final renderBox =
+                              context.findRenderObject() as RenderBox;
+                          Offset offset = renderBox.globalToLocal(drag.offset);
+
+                          setState(() {
+                            textInfoList[i].top = offset.dy - 96;
+                            textInfoList[i].left = offset.dx;
+                          });
+                        },
+                      ),
                     ),
                   ),
-                ),
-              creatorText.text.isEmpty
-                  ? Positioned(
-                      left: 0,
-                      bottom: 0,
-                      child: Text(
-                        creatorText.text,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                creatorText.text.isEmpty
+                    ? Positioned(
+                        left: 0,
+                        bottom: 0,
+                        child: Text(
+                          creatorText.text,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ],
+                      )
+                    : const SizedBox.shrink(),
+              ],
+            ),
           ),
         ),
       ),
@@ -85,7 +90,7 @@ class _EditImageScreenState extends EditImageView {
             scrollDirection: Axis.horizontal,
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () => saveImageToGallery(context),
                 icon: const Icon(
                   Icons.save,
                   color: Colors.black,
