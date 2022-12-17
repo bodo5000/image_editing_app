@@ -41,13 +41,16 @@ abstract class EditImageView extends State<EditImageScreen> {
   //increase fontSize of textInfoList.text
   increaseFontSize() {
     setState(() {
-      textInfoList[currentIndex].fontSize += 2;
+      if (textInfoList.isNotEmpty) {
+        textInfoList[currentIndex].fontSize += 2;
+      }
     });
   }
 
 //decrease fontSize of textInfoList.text
   decreaseFontSize() {
     setState(() {
+      if (textInfoList.isNotEmpty) {}
       textInfoList[currentIndex].fontSize -= 2;
     });
   }
@@ -55,10 +58,12 @@ abstract class EditImageView extends State<EditImageScreen> {
   //change font weight
   changeFontWeight() {
     setState(() {
-      if (textInfoList[currentIndex].fontWeight == FontWeight.bold) {
-        textInfoList[currentIndex].fontWeight = FontWeight.normal;
-      } else {
-        textInfoList[currentIndex].fontWeight = FontWeight.bold;
+      if (textInfoList.isNotEmpty) {
+        if (textInfoList[currentIndex].fontWeight == FontWeight.bold) {
+          textInfoList[currentIndex].fontWeight = FontWeight.normal;
+        } else {
+          textInfoList[currentIndex].fontWeight = FontWeight.bold;
+        }
       }
     });
   }
@@ -66,10 +71,12 @@ abstract class EditImageView extends State<EditImageScreen> {
   //change font style
   changeFontStyle() {
     setState(() {
-      if (textInfoList[currentIndex].fontStyle == FontStyle.normal) {
-        textInfoList[currentIndex].fontStyle = FontStyle.italic;
-      } else {
-        textInfoList[currentIndex].fontStyle = FontStyle.normal;
+      if (textInfoList.isNotEmpty) {
+        if (textInfoList[currentIndex].fontStyle == FontStyle.normal) {
+          textInfoList[currentIndex].fontStyle = FontStyle.italic;
+        } else {
+          textInfoList[currentIndex].fontStyle = FontStyle.normal;
+        }
       }
     });
   }
@@ -77,12 +84,14 @@ abstract class EditImageView extends State<EditImageScreen> {
   //wrap in to new line
   addLiensToText() {
     setState(() {
-      if (textInfoList[currentIndex].text.contains('\n')) {
-        textInfoList[currentIndex].text =
-            textInfoList[currentIndex].text.replaceAll('\n', ' ');
-      } else {
-        textInfoList[currentIndex].text =
-            textInfoList[currentIndex].text.replaceAll(' ', '\n');
+      if (textInfoList.isNotEmpty) {
+        if (textInfoList[currentIndex].text.contains('\n')) {
+          textInfoList[currentIndex].text =
+              textInfoList[currentIndex].text.replaceAll('\n', ' ');
+        } else {
+          textInfoList[currentIndex].text =
+              textInfoList[currentIndex].text.replaceAll(' ', '\n');
+        }
       }
     });
   }
@@ -92,6 +101,16 @@ abstract class EditImageView extends State<EditImageScreen> {
     setState(() {
       textInfoList.removeAt(currentIndex);
     });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Text has been Deleted',
+          style: TextStyle(
+            fontSize: 17.0,
+          ),
+        ),
+      ),
+    );
   }
 
   //creating addNewText that will add into photo
